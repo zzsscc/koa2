@@ -1,0 +1,13 @@
+{
+  "name": "koa2",
+  "version": "1.0.0",
+  "description": "a koa2 project",
+  "main": "index.js",
+  "repository": "git@github.com:zzsscc/koa2.git",
+  "author": "zsc",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/zzsscc/koa2/issues"
+  },
+  "homepage": "https://github.com/zzsscc/koa2#readme"
+}
