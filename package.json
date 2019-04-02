@@ -10,8 +10,20 @@
     "url": "https://github.com/zzsscc/koa2/issues"
   },
   "homepage": "https://github.com/zzsscc/koa2#readme",
+  "scripts": {
+    "start": "node --experimental-modules ./server/index.mjs"
+  },
   "dependencies": {
     "colors": "^1.3.3",
+    "core-js": "2",
     "koa": "^2.7.0"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.2.3",
+    "@babel/core": "^7.4.0",
+    "@babel/node": "^7.2.2",
+    "@babel/plugin-transform-async-to-generator": "^7.4.0",
+    "@babel/preset-env": "^7.4.2",
+    "@babel/register": "^7.4.0"
   }
 }
