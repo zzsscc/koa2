@@ -1,4 +1,4 @@
-const os = require('os');
+const os = require('os')
 
 const ENV = process.env.NODE_ENV || 'dev'
 
