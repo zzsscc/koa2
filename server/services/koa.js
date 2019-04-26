@@ -1,6 +1,6 @@
 import Koa from 'koa'
 import logger from "../utils/logger"
-import koaError from "./middlewares/koaError"
+import koaError from "./helpers/koaError"
 import { handlerError, CustomError } from "./middlewares/handlerError"
 
 const app = new Koa()
@@ -40,11 +40,29 @@ app.use(async (ctx, next) => {
   const { vm } = ctx.state.global
   logger.info(vm) // 使用全局共享的命名空间变量
 
+  /**
+   * @description koa提供了ctx.cookies.set方法设置cookie
+   * @function ctx.cookies.set(name, value, [options])
+   * @operationId options
+   * @param {maxAge} 一个数字表示从 Date.now() 得到的毫秒数
+   * @param {signed} cookie 签名值
+   * @param {expires} cookie 过期的 Date
+   * @param {path} cookie 路径, 默认是'/'
+   * @param {domain} cookie 域名
+   * @param {secure} 安全 cookie
+   * @param {httpOnly} 服务器可访问 cookie, 默认是 true
+   * @param {overwrite} 一个布尔值，表示是否覆盖以前设置的同名的 cookie (默认是 false). 如果是 true, 在同一个请求中设置相同名称的所有 Cookie（不管路径或域）是否在设置此Cookie                       时从 Set-Cookie 标头中过滤掉。
+   */
+  ctx.cookies.set('cookie', 1)
+
+  await next()
+
   // 中间件内错误捕获，但是这样比较繁琐
   // try {
     // throw new CustomError('new Error', { status: 501 })
   // } catch (err) {
   //   // Koa 提供了ctx.throw()方法，用来抛出错误
+  //   // ctx.throw([status], [msg], [properties]) => ctx.throw(400, 'name required', { user: user });
   //   ctx.throw(500)
   //   // 等同于将ctx.response.status设置成500
   //   // ctx.response.status = 500;
@@ -56,6 +74,17 @@ app.use(async (ctx, next) => {
   } catch (err) {
     throw new CustomError(err, { status: 502 })
   }
+})
+
+app.use(async (ctx, next) => {
+  /**
+   * @description koa提供了ctx.cookies.get方法获取cookie
+   * @function ctx.cookies.get(name, [options])
+   * @operationId options
+   * @param {signed} 所请求的cookie应该被签名
+   */
+  const cookie = ctx.cookies.get('cookie')
+  logger.info(`cookie: ${cookie}`)
 })
 
 export default app
