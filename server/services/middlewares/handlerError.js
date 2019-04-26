@@ -23,7 +23,7 @@ export const handlerError = async (ctx, next) => {
     ctx.response.body = {
       message: err.message,
       ...err
-    };
+    }
     // 但仅仅有上面部分不会触发app.on('error')事件，必须调用ctx.app.emit()，手动释放error事件，才能让监听函数生效
     ctx.app.emit('error', err, ctx)
   }
