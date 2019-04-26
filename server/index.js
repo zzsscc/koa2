@@ -25,4 +25,4 @@ process.on('uncaughtException', (e) => {
   logger.error(`[koaServer] uncaughtException: ${e}`)
 })
 
-module.exports = server;
+module.exports = server
