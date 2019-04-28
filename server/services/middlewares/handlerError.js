@@ -19,7 +19,7 @@ export const handlerError = async (ctx, next) => {
   try {
     await next();
   } catch (err) {
-    ctx.response.status = err.status;
+    ctx.response.status = err.status || 500;
     ctx.response.body = {
       message: err.message,
       ...err

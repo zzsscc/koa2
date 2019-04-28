@@ -1,7 +1,9 @@
 import Koa from 'koa'
-import logger from "../utils/logger"
-import koaError from "./helpers/koaError"
-import { handlerError, CustomError } from "./middlewares/handlerError"
+import bodyParser from 'koa-bodyparser'
+import path from 'path'
+import logger from '../utils/logger'
+import koaError from './helpers/koaError'
+import { handlerError, CustomError } from './middlewares/handlerError'
 
 const app = new Koa()
 // middleware的顺序很重要，也就是调用app.use()的顺序决定了middleware的顺序
@@ -10,6 +12,31 @@ const app = new Koa()
 app.use(handlerError)
 // 添加app error 事件的监听
 koaError(app)
+
+// 使用koa-body处理post请求和文件上传 (http://www.ptbird.cn/koa-body.html)
+/**
+ * @success 获取上传后文件的信息：ctx.request.files
+ * @success 获取post请求参数：ctx.request.body
+*/ 
+// koa-bodyparser 也可以处理post请求，如果是图片上传则需要使用的是 koa-multer
+// 这两者的组合没什么问题，不过 koa-multer 和 koa-route（注意不是 koa-router） 存在不兼容的问题。
+// ！！！但是我们可以不用koa-route，它也两年多没更新了，使用koa-router也就没有兼容问题了
+// app.use(koaBody({
+//   multipart: true, // 支持文件上传
+//   encoding: 'gzip',
+//   formidable: {
+//     uploadDir: path.join(__dirname, 'public/upload/'), // 设置文件上传目录
+//     keepExtensions: true,    // 保持文件的后缀
+//     maxFieldsSize: 2 * 1024 * 1024, // 文件上传大小
+//     onFileBegin: (name,file) => { // 文件上传前的设置
+//       // console.log(`name: ${name}`);
+//       // console.log(file);
+//     }
+//   }
+// }))
+
+// 我们愉快的使用koa-bodyparser处理post请求
+app.use(bodyParser())
 
 // app.context 是从其创建 ctx 的原型。
 // 您可以通过编辑 app.context 为 ctx 添加其他属性。
@@ -23,7 +50,9 @@ app.context.extendState = 'extendState'
 app.use(async (ctx, next) => {
   const { request, response } = ctx // 此处，req等同于request，res等同于response
   // logger.info(request.query) // 获取get请求参数
-  logger.info(ctx.query) // 也可以使用cxt简写，ctx.query == ctx.request.query 获取get请求参数
+  // logger.info(request.body) // 获取post请求参数
+  logger.info(ctx.query) // 获取get请求参数。也可以使用cxt简写，ctx.query == ctx.request.query
+  logger.info(ctx.request.body) // 获取post请求参数。不可以使用cxt简写，与koa的ctx.body冲突了
 
   // Koa2中可以通过ctx.state配置全局变量。ctx.state配置的全局变量我们不仅可以在其他的路由页面使用，我们还可以在全局模板使用.
   ctx.state.global = { vm: 'koa' }
