@@ -1,14 +1,21 @@
 require('@babel/register')
 import http, { Server } from 'http'
 import app from './services/koa'
+import apiRouter from './routes/'
 import config from '../config'
 import logger from './utils/logger'
+
+apiRouter(app)
 
 // 返回适用于 http.createServer() 方法的回调函数来处理请求。你也可以使用此回调函数将 koa 应用程序挂载到 Connect/Express 应用程序中。
 const server = new Server(app.callback())
 // const server = http.createServer(app.callback()) 也可以选择这种方式，等同于上面的new Server
 
 const { port, host } = config
+if (!port) {
+  logger.error('[expressServer] No PORT environment variable has been specified');
+  process.exit(0);
+}
 server.listen(port, (err) => {
   if (err) {
     logger.error(err.stack || err)

@@ -8,6 +8,16 @@ import { handlerError, CustomError } from './middlewares/handlerError'
 const app = new Koa()
 // middleware的顺序很重要，也就是调用app.use()的顺序决定了middleware的顺序
 
+const white = ['http://172.17.47.243:9092']
+app.use(async (ctx, next) => {
+  if (white.includes(ctx.header.origin)) {
+    ctx.set('Access-Control-Allow-Origin', ctx.header.origin);
+    ctx.set('Access-Control-Allow-Headers', 'Content-Type,user-code,X-Requested-With,x-csrf-token');
+    ctx.set('Access-Control-Allow-Credentials', 'true');
+  }
+  await next();
+});
+
 // 外层使用负责所有错误处理的中间件
 app.use(handlerError)
 // 添加app error 事件的监听
@@ -49,6 +59,10 @@ app.context.extendState = 'extendState'
 // 将给定的中间件方法添加到此应用程序
 app.use(async (ctx, next) => {
   const { request, response } = ctx // 此处，req等同于request，res等同于response
+  // 拦截/favicon.ico的请求，不处理
+  if (ctx.url === '/favicon.ico') {
+    return new CustomError({}, { status: 404 });
+  }
   // logger.info(request.query) // 获取get请求参数
   // logger.info(request.body) // 获取post请求参数
   logger.info(ctx.query) // 获取get请求参数。也可以使用cxt简写，ctx.query == ctx.request.query
@@ -62,7 +76,7 @@ app.use(async (ctx, next) => {
 
   await next() // 调用next函数，把执行权转交给下一个中间件
 
-  ctx.body = 'Hello World' // ctx.body == ctx.response.query
+  // ctx.body = 'Hello World' // ctx.body == ctx.response.query
 })
 
 app.use(async (ctx, next) => {
@@ -97,12 +111,13 @@ app.use(async (ctx, next) => {
   //   // ctx.response.status = 500;
   //   // ctx.response.body = 'Internal Server Error';
   // }
+
   // 一般使用handlerError统一处理错误，只需在中间件中try...catch处理错误即可
-  try {
-    b = b
-  } catch (err) {
-    throw new CustomError(err, { status: 502 })
-  }
+  // try {
+  //   b = b
+  // } catch (err) {
+  //   throw new CustomError(err, { status: 502 })
+  // }
 })
 
 app.use(async (ctx, next) => {
@@ -114,6 +129,9 @@ app.use(async (ctx, next) => {
    */
   const cookie = ctx.cookies.get('cookie')
   logger.info(`cookie: ${cookie}`)
+
+  // 将中间件控制权交给路由
+  next()
 })
 
 export default app
